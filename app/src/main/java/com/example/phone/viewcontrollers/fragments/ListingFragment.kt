@@ -9,18 +9,19 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.phone.R
+import com.example.phone.model.Result
 import com.example.phone.viewcontrollers.ListingViewModel
 import com.example.phone.viewcontrollers.adapter.ListingAdapter
 
-class ListingFragment : Fragment() {
+class ListingFragment : Fragment(), ListingAdapter.ClickedItemCallback {
 
     companion object {
         fun newInstance() = ListingFragment()
     }
 
-    private var recyclerView : RecyclerView? = null
+    private var recyclerView: RecyclerView? = null
     private lateinit var viewModel: ListingViewModel
-    private var listingAdapter : ListingAdapter? = null
+    private var listingAdapter: ListingAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -43,8 +44,8 @@ class ListingFragment : Fragment() {
 
     private fun setUpAdapter() {
         recyclerView?.apply {
-            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false)
-            listingAdapter = ListingAdapter()
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
+            listingAdapter = ListingAdapter(this@ListingFragment)
             adapter = listingAdapter
         }
     }
@@ -58,10 +59,16 @@ class ListingFragment : Fragment() {
     }
 
     private fun setupObserver() {
-        viewModel.movies.observe(viewLifecycleOwner){
+        viewModel.movies.observe(viewLifecycleOwner) {
             listingAdapter?.submitList(it)
         }
 
     }
 
+    override fun onItemClicked(res: Result) {
+        activity?.supportFragmentManager?.beginTransaction()
+            ?.replace(R.id.content_frame, ListingDetailFragment.getInstanceWithData(res))
+            ?.addToBackStack("tag")
+            ?.commit()
+    }
 }

@@ -7,7 +7,8 @@ import com.example.phone.R
 import com.example.phone.model.Result
 import com.example.phone.viewcontrollers.viewholders.ListingItemViewHolder
 
-class ListingAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ListingAdapter(private val callback: ClickedItemCallback) :
+    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var list = listOf<Result>()
 
@@ -18,7 +19,13 @@ class ListingAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
-        return ListingItemViewHolder(view)
+        return ListingItemViewHolder(view).apply {
+            itemView.setOnClickListener {
+                if (adapterPosition != -1) {
+                    callback.onItemClicked(list[adapterPosition])
+                }
+            }
+        }
     }
 
 
@@ -27,10 +34,14 @@ class ListingAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        (holder as? ListingItemViewHolder)?.bindViewHolder(list[position],position)
+        (holder as? ListingItemViewHolder)?.bindViewHolder(list[position], position)
     }
 
     override fun getItemViewType(position: Int): Int {
         return R.layout.item_listing_view
+    }
+
+    interface ClickedItemCallback {
+        fun onItemClicked(res: Result)
     }
 }
